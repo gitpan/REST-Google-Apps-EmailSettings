@@ -1,5 +1,13 @@
 Revision history for REST-Google-Apps-EmailSettings
 
+1.1.3
+* Fri Sep 04 2009 Scott Schneider <sschneid@gmail.com>
+- Standardizing on OO-style input (all values must be named)
+
+1.1.2
+* Fri Sep 04 2009 Scott Schneider <sschneid@gmail.com>
+- Fixing syntax error (oops!)
+
 1.1.1
 * Fri Sep 04 2009 Scott Schneider <sschneid@gmail.com>
 - initial version
