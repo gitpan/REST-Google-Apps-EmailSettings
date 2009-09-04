@@ -1,0 +1,161 @@
+=head1 NAME
+
+REST::Google::Apps::EmailSettings - A Perl library to Google's RESTful Apps API
+
+=head1 SYNOPSIS
+
+  use REST::Google::Apps::EmailSettings
+
+  $google = REST::Google::Apps::EmailSettings->new(
+      domain   => 'company.com',
+      username => 'admin',
+      password => 'g00gl34pp5!'
+  );
+
+  $user->{'jsmith'} = $google->enableForwarding(
+      username  => 'jsmith',
+      forwardTo => 'joe@example.net'
+  );
+
+=head1 DESCRIPTION
+
+REST::Google::Apps::EmailSettings provides a Perl interface to Google's
+RESTful Apps API.
+
+This module is currently a work-in-progress.  Please e-mail with problems,
+bug fixes, comments and complaints.
+
+=head1 CONSTRUCTOR
+
+=over 4
+
+=item new ( DOMAIN, USERNAME, PASSWORD )
+
+Creates a new B<REST::Google::Apps::EmailSettings> object.  A domain parameter
+is required.
+
+Supplying authentication information to the constructor is optional , but needs
+to happen either here or with a call to the B<authenticate> method.
+
+B<Example>
+
+  $google = REST::Google::Apps::EmailSettings->new(
+      domain   => 'company.com',
+      username => 'admin',
+      password => 'g00gl34pp5!'
+  );
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item authenticate ( USERNAME, PASSWORD )
+
+Authenticate a session.
+
+B<Example>
+
+  $google->authenticate(
+      username => 'admin',
+      password => 'g00gl34pp5!'
+  )
+  || die "Could not authenticate";
+
+=item createLabel ( USERNAME, LABEL )
+
+Create a new label.
+
+B<Example>
+
+  $google->createLabel(
+      username => 'jsmith',
+      label    => 'Receipts'
+  )
+  || die "Could not create label";
+
+=item enableWebClips ( USERNAME )
+
+=item disableWebClips ( USERNAME )
+
+Enable or disable web clips.
+
+B<Example>
+
+  $google->enableWebClips( 'jsmith' );
+
+=item enableForwarding ( USERNAME, FORWARDTO, ACTION )
+
+Enable forwarding.
+
+B<action> is an optional parameter defining what Google should do with mail
+once forwarding is enabled.  Valid options are 'archive', 'keep' (the
+default), and 'delete'.
+
+B<Example>
+
+  $google->enableForwarding(
+      username   => 'jsmith',
+      forwareTo  => 'joe@example.net',
+      action     => 'archive'
+  )
+  || die "Could not enable forwarding";
+
+=item disableForwarding ( USERNAME )
+
+Disable forwarding.
+
+B<Example>
+
+  $google->disableForwarding( 'jsmith' );
+
+=back
+
+=item enablePOP ( USERNAME, ENABLEFOR, ACTION )
+
+Enable POP access.
+
+B<action> is an optional parameter defining what Google should do with mail
+once POP access is enabled.  Valid options are 'archive', 'keep' (the
+default), and 'delete'.
+
+B<enableFor> is an optional parameter defining whether to enable POP for
+all mail, or mail from now on.  Valid options are 'all', and 'now' (the
+default).
+
+B<Example>
+
+  $google->enablePOP(
+      username   => 'jsmith',
+      enableFor  => 'all',
+      action     => 'archive'
+  )
+  || die "Could not enable POP";
+
+=item disablePOP ( USERNAME )
+
+Disable POP access.
+
+B<Example>
+
+  $google->disablePOP( 'jsmith' );
+
+=back
+
+=item enableIMAP ( USERNAME )
+
+=item disableIMAP ( USERNAME )
+
+Enable or disable IMAP access.
+
+B<Example>
+
+  $google->enableIMAP( 'jsmith' );
+
+=head1 AUTHOR
+
+Scott Schneider <sschneid@gmail.com>
+
+=cut
+
