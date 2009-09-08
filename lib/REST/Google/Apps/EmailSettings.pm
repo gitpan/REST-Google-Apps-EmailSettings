@@ -17,8 +17,7 @@ sub new {
     my ( $arg );
     %{$arg} = @_;
 
-    $self->{'domain'} = $arg->{'domain'}
-    || croak qq(Missing required 'domain' argument);
+    $self->{'domain'} = $arg->{'domain'} || croak( "Missing required 'domain' argument" );
 
     $self->{'lwp'} = LWP::UserAgent->new();
     $self->{'lwp'}->agent( 'RESTGoogleAppsEmailSettings/' . $VERSION );
@@ -46,9 +45,8 @@ sub authenticate {
     my ( $arg );
     %{$arg} = @_;
 
-    foreach ( qw/ username password / ) {
-        $arg->{$_}
-        || croak qq(Missing required $_ argument);
+    foreach my $param ( qw/ username password / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
     }
 
     my $response = $self->{'lwp'}->post(
@@ -79,6 +77,10 @@ sub createLabel {
     my ( $arg );
     %{$arg} = @_;
 
+    foreach my $param ( qw/ username label / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/label);
 
     my ( $body );
@@ -97,11 +99,101 @@ sub createLabel {
 }
 
 
+
+sub createFilter {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    unless (
+        $arg->{'from'} || $arg->{'to'} || $arg->{'subject'} || $arg->{'hasWord'} || $arg->{'noWord'} || $arg->{'attachment'}
+    ) {
+        croak( "Missing required filter criteria" );
+    }
+
+    unless (
+        $arg->{'label'} || $arg->{'markAsRead'} || $arg->{'archive'}
+    ) {
+        croak( "Missing required filter action" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/filter);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+
+    foreach my $param ( qw/ from to subject / ) {
+        $body .= qq(  <apps:property name="$param" value="$arg->{$param}" />\n) if $arg->{$param};
+    }
+
+    $body .= qq(  <apps:property name="hasTheWord" value="$arg->{'hasWord'}" />\n) if $arg->{'hasWord'};
+    $body .= qq(  <apps:property name="doesNotHaveTheWord" value="$arg->{'noWord'}" />\n) if $arg->{'noWord'};
+    $body .= qq(  <apps:property name="hasAttachment" value="$arg->{'attachment'}" />\n) if $arg->{'attachment'};
+
+    $body .= qq(  <apps:property name="label" value="$arg->{'label'}" />\n) if $arg->{'label'};
+    $body .= qq(  <apps:property name="shouldMarkAsRead" value="$arg->{'markAsRead'}" />\n) if $arg->{'markAsRead'};
+    $body .= qq(  <apps:property name="shouldArchive" value="$arg->{'archive'}" />\n) if $arg->{'archive'};
+
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'POST',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+
+
+sub createSendAs {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username name address / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/sendas);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+    $body .= qq(  <apps:property name="name" value="$arg->{'name'}" />\n);
+    $body .= qq(  <apps:property name="address" value="$arg->{'address'}" />\n);
+    $body .= qq(  <apps:property name="replyTo" value="$arg->{'replyTo'}" />\n) if $arg->{'replyTo'};
+    $body .= qq(  <apps:property name="default" value="$arg->{'default'}" />\n) if $arg->{'default'};
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'POST',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+
+
 sub enableWebClips {
     my $self = shift;
 
     my ( $arg );
     %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
 
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/webclip);
 
@@ -125,6 +217,10 @@ sub disableWebClips {
 
     my ( $arg );
     %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
 
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/webclip);
 
@@ -150,6 +246,10 @@ sub enableForwarding {
 
     my ( $arg );
     %{$arg} = @_;
+
+    foreach my $param ( qw/ username forwardTo / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
 
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/forwarding);
 
@@ -186,6 +286,10 @@ sub disableForwarding {
     my ( $arg );
     %{$arg} = @_;
 
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/forwarding);
 
     my ( $body );
@@ -210,6 +314,10 @@ sub enablePOP {
 
     my ( $arg );
     %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
 
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/pop);
 
@@ -256,6 +364,10 @@ sub disablePOP {
     my ( $arg );
     %{$arg} = @_;
 
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/pop);
 
     my ( $body );
@@ -280,6 +392,10 @@ sub enableIMAP {
     my ( $arg );
     %{$arg} = @_;
 
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/imap);
 
     my ( $body );
@@ -303,12 +419,131 @@ sub disableIMAP {
     my ( $arg );
     %{$arg} = @_;
 
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
     my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/imap);
 
     my ( $body );
 
     $body  = $self->_xmlpre();
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'PUT',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+
+
+sub enableVacation {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username subject message / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/vacation);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+    $body .= qq(  <apps:property name="enable" value="true" />\n);
+    $body .= qq(  <apps:property name="subject" value="$arg->{'subject'}" />\n);
+    $body .= qq(  <apps:property name="message" value="$arg->{'message'}" />\n);
+    $body .= qq(  <apps:property name="contactsOnly" value="$arg->{'contactsOnly'}" />\n) if $arg->{'contactsOnly'};
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'PUT',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+sub disableVacation {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/vacation);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+    $body .= qq(  <apps:property name="enable" value="false" />\n);
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'PUT',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+
+
+sub enableSignature {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username signature / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/signature);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+    $body .= qq(  <apps:property name="signature" value="$arg->{'signature'}" />\n);
+    $body .= $self->_xmlpost();
+
+    my $result = $self->_request(
+        'method' => 'PUT',
+        'url'    => $url,
+        'body'   => $body
+    ) || return( 0 );
+
+    return( 1 );
+}
+
+sub disableSignature {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach my $param ( qw/ username / ) {
+        $arg->{$param} || croak( "Missing required '$param' argument" );
+    }
+
+    my $url = qq(https://apps-apis.google.com/a/feeds/emailsettings/2.0/$self->{'domain'}/$arg->{'username'}/signature);
+
+    my ( $body );
+
+    $body  = $self->_xmlpre();
+    $body .= qq(  <apps:property name="signature" value="" />\n);
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(

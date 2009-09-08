@@ -1,6 +1,7 @@
 =head1 NAME
 
-REST::Google::Apps::EmailSettings - A Perl library to Google's RESTful Apps API
+REST::Google::Apps::EmailSettings - A Perl library to Google's RESTful Apps
+Email Settings API
 
 =head1 SYNOPSIS
 
@@ -12,7 +13,7 @@ REST::Google::Apps::EmailSettings - A Perl library to Google's RESTful Apps API
       password => 'g00gl34pp5!'
   );
 
-  $user->{'jsmith'} = $google->enableForwarding(
+  $google->enableForwarding(
       username  => 'jsmith',
       forwardTo => 'joe@example.net'
   );
@@ -75,6 +76,172 @@ B<Example>
   )
   || die "Could not create label";
 
+=item createFilter ( USERNAME, CRITERIA, ACTION )
+
+Create a new filter.
+
+One or more of the following parameters is required to define the criteria
+for the filter:
+
+=over 4
+
+=item from
+
+Specifies the e-mail address of the sender.
+
+B<Example>
+
+  from => 'j.q.public@company.com'
+
+=item to
+
+Specifies the e-mail address the message was sent to.
+
+B<Example>
+
+  to => 'jsmith@example.net'
+
+=item subject
+
+Filters for a string anywhere in the e-mail's subject line.
+
+B<Example>
+
+  subject => 'project'
+
+=item hasWord
+
+Filters for a string anywhere in the e-mail's subject line or body.
+
+B<Example>
+
+  hasWord => 'work'
+
+=item noWord
+
+Specifies that the e-mail cannot have a string anywhere in the subject or
+body.
+
+B<Example>
+
+  noWord => 'proposal'
+
+=item attachment
+
+Can be 'true' or 'false', representing whether or not the e-mail contains
+an attachment
+
+B<Example>
+
+  attachment => 'true'
+
+=back
+
+One or more of the following parameters is required to define the action
+to be taken when the specified criteria has been met:
+
+=over 4
+
+=item label
+
+Specifies the name of the label to apply to the message.  The label must
+already exist to be used (see the B<createLabel> function).
+
+B<Example>
+
+  label => 'Receipts'
+
+=item markAsRead
+
+Can be 'true' or 'false', representing whether or not to mark the message
+as read.
+
+  markAsRead => 'true'
+
+=item archive
+
+Can be 'true' or 'false', representing whether or not to archive the
+message if the criteria is met.
+
+B<Example>
+
+  archive => 'true'
+
+=back
+
+B<Examples>
+
+  $google->createFilter(
+      username => 'jsmith',
+      hasWord  => 'receipt',
+      label    => 'Receipts'
+  )
+  || die "Could not create filter";
+
+  $google->createFilter(
+      username => 'jsmith',
+      from     => 'spam@example.net',
+      archive  => 'true'
+  )
+  || die "Could not create filter";
+
+=item createSendAs ( USERNAME, NAME, ADDRESS, REPLYTO, DEFAULT )
+
+Create a send-as alias.
+
+=over 4
+
+=item username
+
+Required.  Specified the username of the mail account.
+
+=back
+
+=over 4
+
+=item name
+
+Required.  The name that will appear in the 'from' field for this user.
+
+=back
+
+=over 4
+
+=item address
+
+Required.  The e-mail address that appears as the origination address for
+emails sent by this user.
+
+=back
+
+=over 4
+
+=item replyTo
+
+Optional.  If set, this address will be included as the reply-to address
+in emails sent using the alias.
+
+=back
+
+=over 4
+
+=item default
+
+Optional.  Can be 'true' or 'false', representing whether or not this alias
+will be become the new default alias to send-as for this user.
+
+=back
+
+B<Example>
+
+  $google->createSendAs(
+    username => 'jsmith',
+    name     => 'Sales',
+    address  => 'sales@company.com',
+    default  => 'true'
+  )
+  || die "Could not create send-as alias";
+
 =item enableWebClips ( USERNAME )
 
 =item disableWebClips ( USERNAME )
@@ -110,19 +277,24 @@ B<Example>
 
   $google->disableForwarding( username => 'jsmith' );
 
-=back
-
 =item enablePOP ( USERNAME, ENABLEFOR, ACTION )
 
 Enable POP access.
 
-B<action> is an optional parameter defining what Google should do with mail
-once POP access is enabled.  Valid options are 'archive', 'keep' (the
-default), and 'delete'.
+=over 4
 
-B<enableFor> is an optional parameter defining whether to enable POP for
-all mail, or mail from now on.  Valid options are 'all', and 'now' (the
-default).
+=item action
+
+An optional parameter defining what Google should do with mail once POP
+access is enabled.  Valid options are 'archive', 'keep' (the default),
+and 'delete'.
+
+=item enableFor
+
+An optional parameter defining whether to enable POP for all mail, or mail
+from now on.  Valid options are 'all', and 'now' (the default).
+
+=back
 
 B<Example>
 
@@ -141,8 +313,6 @@ B<Example>
 
   $google->disablePOP( username => 'jsmith' );
 
-=back
-
 =item enableIMAP ( USERNAME )
 
 =item disableIMAP ( USERNAME )
@@ -152,6 +322,75 @@ Enable or disable IMAP access.
 B<Example>
 
   $google->enableIMAP( username => 'jsmith' );
+
+=item enableVacation ( USERNAME, SUBJECT, MESSAGE, CONTACTSONLY )
+
+Enable a vacation/out-of-office auto-responder.
+
+=over 4
+
+=item subject
+
+The subject line for the vacation auto-responder.
+
+=back
+
+=over 4
+
+=item message
+
+The message body of the vacation auto-responder.  Up to 100 KB is
+allowed.
+
+=back
+
+=over 4
+
+=item contactsOnly
+
+Whether to only send the autoresponse to known contacts.
+
+=back
+
+B<Example>
+
+  $google->enableVacation(
+      username => 'jsmith',
+      subject  => 'Out of the office',
+      message  => 'I will be out of the office until Tuesday.  Please '
+                . 'contact me at 555-5555 for all urgent matters.'
+  )
+  || die "Could not enable vacation auto-responder";
+
+=item disableVacation ( USERNAME )
+
+Disable a vacation auto-responder.
+
+B<Example>
+
+  $google->disableVacation( username => 'jsmith' );
+
+=item enableSignature ( USERNAME, SIGNATURE )
+
+Enable an e-mail signature.
+
+B<Example>
+
+  $google->enableSignature(
+      username  => 'jsmith',
+      signature => 'Joey Smith - (+1) 555-555-5555'
+  )
+  || die "Could not enable signature";
+
+=item disableSignature ( USERNAME )
+
+Disable a signature.
+
+B<Example>
+
+  $google->disableSignature( username => 'jsmith' );
+
+=back
 
 =head1 AUTHOR
 
