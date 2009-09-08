@@ -390,6 +390,59 @@ B<Example>
 
   $google->disableSignature( username => 'jsmith' );
 
+=item setLanguage ( USERNAME, LANGUAGE )
+
+Updating the display language setting.
+
+B<Example>
+
+  $google->setLanguage(
+      username => 'jsmith',
+      language => 'de'
+  );
+
+=item setPageSize ( USERNAME, PAGESIZE )
+
+Set the number of conversations to be shown per page.
+
+B<Example>
+
+  $google->setPageSize(
+      username => 'jsmith',
+      pageSize => '50'
+  );
+
+=item enableShortcuts ( USERNAME )
+
+=item disableShortcuts ( USERNAME )
+
+Enable or disable keyboard shortcuts.
+
+B<Example>
+
+  $google->enableShortcuts( username => 'jsmith' );
+
+=item enableArrows ( USERNAME )
+
+=item disableArrows ( USERNAME )
+
+Enable or disable arrow-shaped personal indicators ( › and » ) next to
+emails that were sent specifically to the user.
+
+B<Example>
+
+  $google->enableArrows( username => 'jsmith' );
+
+=item enableSnippets ( USERNAME )
+
+=item disableSnippets ( USERNAME )
+
+Enable or disable snippets of messages in the inbox and when searching.
+
+B<Example>
+
+  $google->enableSnippets( username => 'jsmith' );
+
 =back
 
 =head1 AUTHOR
