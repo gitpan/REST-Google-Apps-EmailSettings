@@ -7,7 +7,7 @@ use XML::Simple;
 use strict;
 use warnings;
 
-our $VERSION = '1.1.5';
+our $VERSION = '1.1.6';
 
 
 
@@ -16,6 +16,8 @@ sub new {
 
     my ( $arg );
     %{$arg} = @_;
+
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
 
     $self->{'domain'} = $arg->{'domain'} || croak( "Missing required 'domain' argument" );
 
@@ -44,6 +46,8 @@ sub authenticate {
 
     my ( $arg );
     %{$arg} = @_;
+
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
 
     foreach my $param ( qw/ username password / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
@@ -77,6 +81,8 @@ sub createLabel {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username label / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -86,7 +92,9 @@ sub createLabel {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="label" value="$arg->{'label'}" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -106,18 +114,20 @@ sub createFilter {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
 
     unless (
-        $arg->{'from'} || $arg->{'to'} || $arg->{'subject'} || $arg->{'hasWord'} || $arg->{'noWord'} || $arg->{'attachment'}
+        $arg->{'from'} || $arg->{'to'} || $arg->{'subject'} || $arg->{'hasword'} || $arg->{'noWord'} || $arg->{'attachment'}
     ) {
         croak( "Missing required filter criteria" );
     }
 
     unless (
-        $arg->{'label'} || $arg->{'markAsRead'} || $arg->{'archive'}
+        $arg->{'label'} || $arg->{'markasread'} || $arg->{'archive'}
     ) {
         croak( "Missing required filter action" );
     }
@@ -132,12 +142,12 @@ sub createFilter {
         $body .= qq(  <apps:property name="$param" value="$arg->{$param}" />\n) if $arg->{$param};
     }
 
-    $body .= qq(  <apps:property name="hasTheWord" value="$arg->{'hasWord'}" />\n) if $arg->{'hasWord'};
-    $body .= qq(  <apps:property name="doesNotHaveTheWord" value="$arg->{'noWord'}" />\n) if $arg->{'noWord'};
+    $body .= qq(  <apps:property name="hasTheWord" value="$arg->{'hasword'}" />\n) if $arg->{'hasword'};
+    $body .= qq(  <apps:property name="doesNotHaveTheWord" value="$arg->{'noword'}" />\n) if $arg->{'noword'};
     $body .= qq(  <apps:property name="hasAttachment" value="$arg->{'attachment'}" />\n) if $arg->{'attachment'};
 
     $body .= qq(  <apps:property name="label" value="$arg->{'label'}" />\n) if $arg->{'label'};
-    $body .= qq(  <apps:property name="shouldMarkAsRead" value="$arg->{'markAsRead'}" />\n) if $arg->{'markAsRead'};
+    $body .= qq(  <apps:property name="shouldMarkAsRead" value="$arg->{'markasread'}" />\n) if $arg->{'markasread'};
     $body .= qq(  <apps:property name="shouldArchive" value="$arg->{'archive'}" />\n) if $arg->{'archive'};
 
     $body .= $self->_xmlpost();
@@ -159,6 +169,8 @@ sub createSendAs {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username name address / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -168,10 +180,12 @@ sub createSendAs {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="name" value="$arg->{'name'}" />\n);
     $body .= qq(  <apps:property name="address" value="$arg->{'address'}" />\n);
-    $body .= qq(  <apps:property name="replyTo" value="$arg->{'replyTo'}" />\n) if $arg->{'replyTo'};
-    $body .= qq(  <apps:property name="default" value="$arg->{'default'}" />\n) if $arg->{'default'};
+    $body .= qq(  <apps:property name="replyTo" value="$arg->{'replyto'}" />\n) if $arg->{'replyto'};
+    $body .= qq(  <apps:property name="makeDefault" value="$arg->{'default'}" />\n) if $arg->{'default'};
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -191,6 +205,8 @@ sub enableWebClips {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -200,7 +216,9 @@ sub enableWebClips {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="true" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -218,6 +236,8 @@ sub disableWebClips {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -227,7 +247,9 @@ sub disableWebClips {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -247,7 +269,9 @@ sub enableForwarding {
     my ( $arg );
     %{$arg} = @_;
 
-    foreach my $param ( qw/ username forwardTo / ) {
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
+    foreach my $param ( qw/ username forwardto / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
 
@@ -258,7 +282,7 @@ sub enableForwarding {
     $body  = $self->_xmlpre();
 
     $body .= qq(  <apps:property name="enable" value="true" />\n);
-    $body .= qq(  <apps:property name="forwardTo" value="$arg->{'forwardTo'}" />\n);
+    $body .= qq(  <apps:property name="forwardTo" value="$arg->{'forwardto'}" />\n);
 
     if ( $arg->{'action'} ) {
         $arg->{'action'} = uc( $arg->{'action'} );
@@ -286,6 +310,8 @@ sub disableForwarding {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -295,7 +321,9 @@ sub disableForwarding {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -315,6 +343,8 @@ sub enablePOP {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -328,10 +358,10 @@ sub enablePOP {
     $body .= qq(  <apps:property name="enable" value="true" />\n);
 
     if ( $arg->{'enableFor'} ) {
-        if ( $arg->{'enableFor'} eq 'all' ) { $arg->{'enableFor'} = 'ALL_MAIL'; }
-        if ( $arg->{'enableFor'} eq 'now' ) { $arg->{'enableFor'} = 'MAIL_FROM_NOW_ON'; }
+        if ( $arg->{'enablefor'} eq 'all' ) { $arg->{'enablefor'} = 'ALL_MAIL'; }
+        if ( $arg->{'enablefor'} eq 'now' ) { $arg->{'enablefor'} = 'MAIL_FROM_NOW_ON'; }
 
-        $body .= qq( <apps:property name="enableFor" value="$arg->{'enableFor'}" />\n);
+        $body .= qq( <apps:property name="enableFor" value="$arg->{'enablefor'}" />\n);
     }
     else {
         $body .= qq( <apps:property name="enableFor" value="MAIL_FROM_NOW_ON" />\n);
@@ -364,6 +394,8 @@ sub disablePOP {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -373,7 +405,9 @@ sub disablePOP {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -392,6 +426,8 @@ sub enableIMAP {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -401,7 +437,9 @@ sub enableIMAP {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="true" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -419,6 +457,8 @@ sub disableIMAP {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -428,7 +468,9 @@ sub disableIMAP {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -448,6 +490,8 @@ sub enableVacation {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username subject message / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -457,10 +501,12 @@ sub enableVacation {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="true" />\n);
     $body .= qq(  <apps:property name="subject" value="$arg->{'subject'}" />\n);
     $body .= qq(  <apps:property name="message" value="$arg->{'message'}" />\n);
-    $body .= qq(  <apps:property name="contactsOnly" value="$arg->{'contactsOnly'}" />\n) if $arg->{'contactsOnly'};
+    $body .= qq(  <apps:property name="contactsOnly" value="$arg->{'contactsonly'}" />\n) if $arg->{'contactsonly'};
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -478,6 +524,8 @@ sub disableVacation {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -487,7 +535,9 @@ sub disableVacation {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="enable" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -507,6 +557,8 @@ sub enableSignature {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username signature / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -516,7 +568,9 @@ sub enableSignature {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="signature" value="$arg->{'signature'}" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -534,6 +588,8 @@ sub disableSignature {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -543,7 +599,9 @@ sub disableSignature {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="signature" value="" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -563,6 +621,8 @@ sub setLanguage {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username language / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -572,7 +632,9 @@ sub setLanguage {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="language" value="$arg->{'language'}" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -592,7 +654,9 @@ sub setPageSize {
     my ( $arg );
     %{$arg} = @_;
 
-    foreach my $param ( qw/ username pageSize / ) {
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
+    foreach my $param ( qw/ username pagesize / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
 
@@ -601,7 +665,9 @@ sub setPageSize {
     my ( $body );
 
     $body  = $self->_xmlpre();
-    $body .= qq(  <apps:property name="pageSize" value="$arg->{'pageSize'}" />\n);
+
+    $body .= qq(  <apps:property name="pageSize" value="$arg->{'pagesize'}" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -621,6 +687,8 @@ sub enableShortcuts {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -630,7 +698,9 @@ sub enableShortcuts {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="shortcuts" value="true" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -648,6 +718,8 @@ sub disableShortcuts {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -657,7 +729,9 @@ sub disableShortcuts {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="shortcuts" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -677,6 +751,8 @@ sub enableArrows {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -686,7 +762,9 @@ sub enableArrows {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="arrows" value="true" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -704,6 +782,8 @@ sub disableArrows {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -713,7 +793,9 @@ sub disableArrows {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="arrows" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -733,6 +815,8 @@ sub enableSnippets {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -742,7 +826,9 @@ sub enableSnippets {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="snippets" value="true" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(
@@ -760,6 +846,8 @@ sub disableSnippets {
     my ( $arg );
     %{$arg} = @_;
 
+    map { $arg->{lc($_)} = $arg->{$_} } keys %{$arg};
+
     foreach my $param ( qw/ username / ) {
         $arg->{$param} || croak( "Missing required '$param' argument" );
     }
@@ -769,7 +857,9 @@ sub disableSnippets {
     my ( $body );
 
     $body  = $self->_xmlpre();
+
     $body .= qq(  <apps:property name="snippets" value="false" />\n);
+
     $body .= $self->_xmlpost();
 
     my $result = $self->_request(

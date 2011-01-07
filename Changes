@@ -1,5 +1,11 @@
 Revision history for REST-Google-Apps-EmailSettings
 
+1.1.6
+* Fri Jan 07 2011 Scott Schneider <sschneid@gmail.com>
+- Parameter names are now case-insensitive
+- Bug fixes:
+  - createSendAs internal property renamed from 'default' to 'makeDefault'
+
 1.1.5
 * Mon Sep 08 2009 Scott Schneider <sschneid@gmail.com>
 - Added setLanguage, setPageSize, enableShortcuts, disableShortcuts,
